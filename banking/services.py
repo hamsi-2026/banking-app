@@ -141,8 +141,8 @@ def transfer(
 
 def _next_odd_phone():
     """Return the next available odd phone number ≥ 80000001 for managers."""
-    User = get_user_model()
-    existing = set(User.objects.values_list("phone_number", flat=True))
+    user_model = get_user_model()
+    existing = set(user_model.objects.values_list("phone_number", flat=True))
     candidate = 80000001
     while str(candidate) in existing:
         candidate += 2
@@ -151,8 +151,8 @@ def _next_odd_phone():
 
 def _next_even_phone():
     """Return the next available even phone number ≥ 80000002 for authorisers."""
-    User = get_user_model()
-    existing = set(User.objects.values_list("phone_number", flat=True))
+    user_model = get_user_model()
+    existing = set(user_model.objects.values_list("phone_number", flat=True))
     candidate = 80000002
     while str(candidate) in existing:
         candidate += 2
@@ -165,12 +165,12 @@ def _make_slug(company_name: str) -> str:
 
 
 def _unique_username(prefix: str) -> str:
-    User = get_user_model()
+    user_model = get_user_model()
     base = f"{prefix}"
-    if not User.objects.filter(username=base).exists():
+    if not user_model.objects.filter(username=base).exists():
         return base
     i = 2
-    while User.objects.filter(username=f"{base}{i}").exists():
+    while user_model.objects.filter(username=f"{base}{i}").exists():
         i += 1
     return f"{base}{i}"
 
@@ -195,7 +195,7 @@ def create_business_account_mock(
     """
     if initial_deposit < Decimal("7000.00"):
         raise BankingError("Initial deposit must be at least 7,000.")
-    User = get_user_model()
+    user_model = get_user_model()
     slug = _make_slug(company_name)
 
     business_account = BusinessAccount.objects.create(
@@ -216,7 +216,7 @@ def create_business_account_mock(
     manager_phone = _next_odd_phone()
     manager_username = _unique_username(f"manager.{slug}")
     manager_password = _random_password()
-    manager_user = User.objects.create_user(
+    manager_user = user_model.objects.create_user(
         username=manager_username,
         email=f"{manager_username}@demo.internal",
         name=f"Manager ({company_name})",
@@ -228,7 +228,7 @@ def create_business_account_mock(
     authoriser_phone = _next_even_phone()
     authoriser_username = _unique_username(f"authoriser.{slug}")
     authoriser_password = _random_password()
-    authoriser_user = User.objects.create_user(
+    authoriser_user = user_model.objects.create_user(
         username=authoriser_username,
         email=f"{authoriser_username}@demo.internal",
         name=f"Authoriser ({company_name})",
