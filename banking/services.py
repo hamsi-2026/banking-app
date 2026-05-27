@@ -31,6 +31,9 @@ class SelfTransferError(BankingError):
     """Raised when a user tries to transfer to their own account."""
 
 
+INSUFFICIENT_FUNDS_MSG = "Insufficient funds"
+
+
 def _validate_amount(amount):
     if amount <= Decimal("0.00"):
         raise InvalidAmountError("Amount must be greater than zero.")
@@ -55,7 +58,7 @@ def withdraw(account: Account, amount: Decimal) -> Transaction:
     _validate_amount(amount)
     account = Account.objects.get(pk=account.pk)
     if account.balance < amount:
-        raise InsufficientFundsError("Insufficient funds")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MSG)
 
     account.balance -= amount
     account.save(update_fields=["balance"])
@@ -72,7 +75,7 @@ def pay_bill(account: Account, biller: Biller, amount: Decimal) -> Transaction:
     _validate_amount(amount)
     account = Account.objects.get(pk=account.pk)
     if account.balance < amount:
-        raise InsufficientFundsError("Insufficient funds")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MSG)
 
     account.balance -= amount
     account.save(update_fields=["balance"])
@@ -113,7 +116,7 @@ def transfer(
         raise SelfTransferError("Cannot transfer to your own account")
 
     if sender_account.balance < amount:
-        raise InsufficientFundsError("Insufficient funds")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MSG)
 
     sender_account.balance -= amount
     recipient_account.balance += amount

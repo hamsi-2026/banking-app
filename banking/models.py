@@ -63,6 +63,10 @@ class AccountManagerProfile(models.Model):
         return f"Manager of {self.business_account}"
 
 
+TRANSFER_OUT_DISPLAY = "Transfer Out"
+BILL_PAYMENT_DISPLAY = "Bill Payment"
+
+
 class Transaction(models.Model):
     """Immutable record of a balance-changing operation on a personal Account."""
 
@@ -77,9 +81,9 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = [
         (DEPOSIT, "Deposit"),
         (WITHDRAWAL, "Withdrawal"),
-        (TRANSFER_OUT, "Transfer Out"),
+        (TRANSFER_OUT, TRANSFER_OUT_DISPLAY),
         (TRANSFER_IN, "Transfer In"),
-        (BILL_PAYMENT, "Bill Payment"),
+        (BILL_PAYMENT, BILL_PAYMENT_DISPLAY),
         (REJECTED, "Rejected"),
         (CANCELLED, "Cancelled"),
     ]
@@ -121,8 +125,8 @@ class BusinessTransaction(models.Model):
     TRANSACTION_TYPES = [
         (DEPOSIT, "Deposit"),
         (WITHDRAWAL, "Withdrawal"),
-        (TRANSFER_OUT, "Transfer Out"),
-        (BILL_PAYMENT, "Bill Payment"),
+        (TRANSFER_OUT, TRANSFER_OUT_DISPLAY),
+        (BILL_PAYMENT, BILL_PAYMENT_DISPLAY),
         (REJECTED, "Rejected"),
     ]
 
@@ -224,8 +228,8 @@ class PendingTransaction(models.Model):
 
     TRANSACTION_TYPE_CHOICES = [
         (WITHDRAWAL, "Withdrawal"),
-        (TRANSFER_OUT, "Transfer Out"),
-        (BILL_PAYMENT, "Bill Payment"),
+        (TRANSFER_OUT, TRANSFER_OUT_DISPLAY),
+        (BILL_PAYMENT, BILL_PAYMENT_DISPLAY),
     ]
 
     business_account = models.ForeignKey(
