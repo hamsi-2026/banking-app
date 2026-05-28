@@ -5,6 +5,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import migrations, models
 
+BILL_PAYMENT_LABEL = 'Bill Payment'
+
 
 class Migration(migrations.Migration):
 
@@ -34,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='transaction_type',
-            field=models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('TRANSFER_IN', 'Transfer In'), ('BILL_PAYMENT', 'Bill Payment'), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], max_length=20),
+            field=models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('TRANSFER_IN', 'Transfer In'), ('BILL_PAYMENT', BILL_PAYMENT_LABEL), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], max_length=20),
         ),
         migrations.CreateModel(
             name='Authoriser',
@@ -57,7 +59,7 @@ class Migration(migrations.Migration):
             name='BusinessTransaction',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('transaction_type', models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', 'Bill Payment'), ('REJECTED', 'Rejected')], max_length=20)),
+                ('transaction_type', models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', BILL_PAYMENT_LABEL), ('REJECTED', 'Rejected')], max_length=20)),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('balance_after', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('description', models.CharField(blank=True, max_length=200)),
@@ -73,7 +75,7 @@ class Migration(migrations.Migration):
             name='PendingTransaction',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('transaction_type', models.CharField(choices=[('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', 'Bill Payment')], max_length=20)),
+                ('transaction_type', models.CharField(choices=[('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', BILL_PAYMENT_LABEL)], max_length=20)),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('status', models.CharField(choices=[('PENDING', 'Pending'), ('APPROVED', 'Approved'), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], default='PENDING', max_length=10)),

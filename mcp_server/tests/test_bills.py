@@ -47,11 +47,7 @@ class TestListBillers:
     def test_does_not_return_another_users_billers(
         self, db_user, db_bob_biller, api_session
     ):
-        from mcp_server.server import list_billers
-
-        result = list_billers(session_token=api_session)
-
-        assert result == {"billers": [], "count": 0}
+        self.test_empty_account_returns_zero_count(db_user, api_session)
 
 
 @pytest.mark.django_db

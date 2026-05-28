@@ -1,5 +1,5 @@
 (function () {
-  var CRITERIA = [
+  const CRITERIA = [
     {
       id: "pc-length",
       label: "At least 8 characters",

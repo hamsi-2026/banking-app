@@ -1156,7 +1156,7 @@ def _make_pending_for_manager():
 
 
 def test_manager_pending_view_lists_pending_transactions(client):
-    ba, mgr, _, pt = _make_pending_for_manager()
+    _, mgr, _, pt = _make_pending_for_manager()
     client.force_login(mgr)
     response = client.get(reverse("banking:manager_pending"))
     assert response.status_code == 200
@@ -1173,7 +1173,7 @@ def test_manager_pending_view_has_no_approve_reject_controls(client):
 
 
 def test_manager_pending_view_empty_queue_shows_message(client):
-    ba, mgr, _ = make_business_setup()
+    _, mgr, _ = make_business_setup()
     client.force_login(mgr)
     response = client.get(reverse("banking:manager_pending"))
     assert response.status_code == 200
