@@ -50,6 +50,9 @@ def create_key(user, name):
     return api_key, raw_secret
 
 
+_AUTH_FAILED_MSG = "Authentication failed."
+
+
 def _audit_failure(api_key=None, user=None, reason="invalid"):
     APIKeyAuditEvent.objects.create(
         user=user,
@@ -65,27 +68,27 @@ def verify_key(raw_secret):
     submitted = (raw_secret or "").strip()
     if "." not in submitted:
         _audit_failure(reason="malformed")
-        raise APIKeyAuthenticationError("Authentication failed.")
+        raise APIKeyAuthenticationError(_AUTH_FAILED_MSG)
 
     identifier, _secret = submitted.split(".", 1)
     if not identifier.startswith("ak_"):
         _audit_failure(reason="malformed")
-        raise APIKeyAuthenticationError("Authentication failed.")
+        raise APIKeyAuthenticationError(_AUTH_FAILED_MSG)
 
     api_key = AccountAPIKey.objects.select_related("user").filter(
         identifier=identifier
     ).first()
     if api_key is None:
         _audit_failure(reason="invalid")
-        raise APIKeyAuthenticationError("Authentication failed.")
+        raise APIKeyAuthenticationError(_AUTH_FAILED_MSG)
 
     if not api_key.is_active:
         _audit_failure(api_key=api_key, user=api_key.user, reason="revoked")
-        raise APIKeyAuthenticationError("Authentication failed.")
+        raise APIKeyAuthenticationError(_AUTH_FAILED_MSG)
 
     if not check_key_secret(submitted, api_key):
         _audit_failure(api_key=api_key, user=api_key.user, reason="invalid")
-        raise APIKeyAuthenticationError("Authentication failed.")
+        raise APIKeyAuthenticationError(_AUTH_FAILED_MSG)
 
     api_key.last_used_at = timezone.now()
     api_key.save(update_fields=["last_used_at"])

@@ -36,6 +36,8 @@ from .services import (
     withdraw_from_business,
 )
 
+BANKING_BILLING_URL = "banking:billing"
+
 
 def _business_role(user):
     """Return the business role and account for role-based business users."""
@@ -405,7 +407,7 @@ def pay_bill_view(request):
             form.add_error("amount", str(exc))
         else:
             messages.success(request, f"Paid ${txn.amount} to {txn.description}.")
-            return redirect("banking:billing")
+            return redirect(BANKING_BILLING_URL)
     return render(request, "banking/billing.html", _billing_context(account, pay_form=form), status=200)
 
 
@@ -425,7 +427,7 @@ def add_biller_view(request):
             reference=form.cleaned_data["reference"],
         )
         messages.success(request, f"Biller '{form.cleaned_data['name']}' added.")
-        return redirect("banking:billing")
+        return redirect(BANKING_BILLING_URL)
 
     return render(
         request,
@@ -447,7 +449,7 @@ def remove_biller_view(request, biller_id):
     name = biller.name
     biller.delete()
     messages.success(request, f"Biller '{name}' removed.")
-    return redirect("banking:billing")
+    return redirect(BANKING_BILLING_URL)
 
 
 @login_required

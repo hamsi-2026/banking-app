@@ -10,6 +10,8 @@ from banking.models import Biller
 
 User = get_user_model()
 
+_FIXTURE_PASS = "TestPass123!"
+
 
 @pytest.fixture(autouse=True)
 def clear_token_store():
@@ -30,7 +32,7 @@ def db_user(db):
         email="alice@example.com",
         name="Alice Tan",
         phone_number="81234567",
-        password="TestPass123!",
+        password=_FIXTURE_PASS,
     )
 
 
@@ -41,7 +43,7 @@ def db_recipient(db):
         email="bob@example.com",
         name="Bob Lee",
         phone_number="91234567",
-        password="TestPass123!",
+        password=_FIXTURE_PASS,
     )
 
 
@@ -52,7 +54,7 @@ def db_other(db):
         email="charlie@example.com",
         name="Charlie Goh",
         phone_number="91230000",
-        password="TestPass123!",
+        password=_FIXTURE_PASS,
     )
 
 
