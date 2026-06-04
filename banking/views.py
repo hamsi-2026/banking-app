@@ -37,6 +37,11 @@ from .services import (
 )
 
 
+BANKING_DASHBOARD_URL = "banking:dashboard"
+BILLING_TEMPLATE = "banking/billing.html"
+DASHBOARD_TEMPLATE = "banking/dashboard.html"
+
+
 def _business_role(user):
     """Return the business role and account for role-based business users."""
     if hasattr(user, "manager_profile"):
@@ -60,7 +65,7 @@ def _business_context(role, business_account, **overrides):
 @require_http_methods(["GET"])
 def home_view(request):
     """Redirect the root route to the dashboard."""
-    return redirect("banking:dashboard")
+    return redirect(BANKING_DASHBOARD_URL)
 
 
 @login_required
@@ -79,7 +84,7 @@ def dashboard_view(request):
             "transfer_form": TransferForm(),
             "bill_pay_form": BusinessBillPaymentForm(),
         }
-        return render(request, "banking/dashboard.html", context)
+        return render(request, DASHBOARD_TEMPLATE, context)
     if hasattr(request.user, "authoriser_profile"):
         ba = request.user.authoriser_profile.business_account
         context = {
@@ -92,7 +97,7 @@ def dashboard_view(request):
             "transfer_form": TransferForm(),
             "bill_pay_form": BusinessBillPaymentForm(),
         }
-        return render(request, "banking/dashboard.html", context)
+        return render(request, DASHBOARD_TEMPLATE, context)
     account = request.user.account
     context = {
         "account": account,
@@ -104,7 +109,7 @@ def dashboard_view(request):
         "withdraw_form": WithdrawForm(),
         "transfer_form": TransferForm(),
     }
-    return render(request, "banking/dashboard.html", context)
+    return render(request, DASHBOARD_TEMPLATE, context)
 
 
 @login_required
@@ -121,8 +126,8 @@ def deposit_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, f"Deposited ${form.cleaned_data['amount']} successfully.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_manager": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": form, "withdraw_form": WithdrawForm(),
@@ -137,8 +142,8 @@ def deposit_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, f"Deposited ${form.cleaned_data['amount']} successfully.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_authoriser": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": form, "withdraw_form": WithdrawForm(),
@@ -153,8 +158,8 @@ def deposit_view(request):
             form.add_error("amount", str(exc))
         else:
             messages.success(request, f"Deposited ${txn.amount} successfully.")
-            return redirect("banking:dashboard")
-    return render(request, "banking/dashboard.html", {
+            return redirect(BANKING_DASHBOARD_URL)
+    return render(request, DASHBOARD_TEMPLATE, {
         "account": account, "balance": account.balance,
         "recent_transactions": account.transactions.select_related("counterparty__user").order_by("-timestamp")[:5],
         "deposit_form": form, "withdraw_form": WithdrawForm(), "transfer_form": TransferForm(),
@@ -175,8 +180,8 @@ def withdraw_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, "Withdrawal submitted and awaiting authoriser approval.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_manager": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": form,
@@ -191,8 +196,8 @@ def withdraw_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, "Withdrawal executed successfully.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_authoriser": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": form,
@@ -207,8 +212,8 @@ def withdraw_view(request):
             form.add_error("amount", str(exc))
         else:
             messages.success(request, f"Withdrew ${txn.amount} successfully.")
-            return redirect("banking:dashboard")
-    return render(request, "banking/dashboard.html", {
+            return redirect(BANKING_DASHBOARD_URL)
+    return render(request, DASHBOARD_TEMPLATE, {
         "account": account, "balance": account.balance,
         "recent_transactions": account.transactions.select_related("counterparty__user").order_by("-timestamp")[:5],
         "deposit_form": DepositForm(), "withdraw_form": form, "transfer_form": TransferForm(),
@@ -233,8 +238,8 @@ def transfer_view(request):
                 form.add_error(None, str(exc))
             else:
                 messages.success(request, "Transfer submitted and awaiting authoriser approval.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_manager": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": WithdrawForm(),
@@ -253,8 +258,8 @@ def transfer_view(request):
                 form.add_error(None, str(exc))
             else:
                 messages.success(request, "Transfer executed successfully.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_authoriser": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": WithdrawForm(),
@@ -271,8 +276,8 @@ def transfer_view(request):
         else:
             recipient = out_transaction.counterparty.user
             messages.success(request, f"Sent ${out_transaction.amount} to {recipient.name}.")
-            return redirect("banking:dashboard")
-    return render(request, "banking/dashboard.html", {
+            return redirect(BANKING_DASHBOARD_URL)
+    return render(request, DASHBOARD_TEMPLATE, {
         "account": account, "balance": account.balance,
         "recent_transactions": account.transactions.select_related("counterparty__user").order_by("-timestamp")[:5],
         "deposit_form": DepositForm(), "withdraw_form": WithdrawForm(), "transfer_form": form,
@@ -331,7 +336,7 @@ def billing_view(request):
         ).order_by("-timestamp")[:5]
         return render(
             request,
-            "banking/billing.html",
+            BILLING_TEMPLATE,
             _business_context(
                 role,
                 business_account,
@@ -341,7 +346,7 @@ def billing_view(request):
         )
 
     account = request.user.account
-    return render(request, "banking/billing.html", _billing_context(account))
+    return render(request, BILLING_TEMPLATE, _billing_context(account))
 
 
 @login_required
@@ -363,8 +368,8 @@ def pay_bill_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, "Bill payment submitted and awaiting authoriser approval.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_manager": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": WithdrawForm(),
@@ -385,8 +390,8 @@ def pay_bill_view(request):
                 form.add_error("amount", str(exc))
             else:
                 messages.success(request, "Bill payment executed successfully.")
-                return redirect("banking:dashboard")
-        return render(request, "banking/dashboard.html", {
+                return redirect(BANKING_DASHBOARD_URL)
+        return render(request, DASHBOARD_TEMPLATE, {
             "is_authoriser": True, "business_account": ba, "balance": ba.balance,
             "recent_transactions": ba.transactions.order_by("-timestamp")[:5],
             "deposit_form": DepositForm(), "withdraw_form": WithdrawForm(),
@@ -406,7 +411,7 @@ def pay_bill_view(request):
         else:
             messages.success(request, f"Paid ${txn.amount} to {txn.description}.")
             return redirect("banking:billing")
-    return render(request, "banking/billing.html", _billing_context(account, pay_form=form), status=200)
+    return render(request, BILLING_TEMPLATE, _billing_context(account, pay_form=form), status=200)
 
 
 @login_required
@@ -429,7 +434,7 @@ def add_biller_view(request):
 
     return render(
         request,
-        "banking/billing.html",
+        BILLING_TEMPLATE,
         _billing_context(account, add_biller_form=form),
         status=200,
     )
