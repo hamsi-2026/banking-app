@@ -6,6 +6,11 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+TRANSFER_OUT_LABEL = 'Transfer Out'
+BILL_PAYMENT_LABEL = 'Bill Payment'
+BUSINESS_ACCOUNT_REF = 'banking.businessaccount'
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -34,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='transaction_type',
-            field=models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('TRANSFER_IN', 'Transfer In'), ('BILL_PAYMENT', 'Bill Payment'), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], max_length=20),
+            field=models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', TRANSFER_OUT_LABEL), ('TRANSFER_IN', 'Transfer In'), ('BILL_PAYMENT', BILL_PAYMENT_LABEL), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], max_length=20),
         ),
         migrations.CreateModel(
             name='Authoriser',
@@ -42,7 +47,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('assigned_at', models.DateTimeField(auto_now_add=True)),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='authoriser_profile', to=settings.AUTH_USER_MODEL)),
-                ('business_account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='authoriser', to='banking.businessaccount')),
+                ('business_account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='authoriser', to=BUSINESS_ACCOUNT_REF)),
             ],
         ),
         migrations.CreateModel(
@@ -50,19 +55,19 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='manager_profile', to=settings.AUTH_USER_MODEL)),
-                ('business_account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='manager', to='banking.businessaccount')),
+                ('business_account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='manager', to=BUSINESS_ACCOUNT_REF)),
             ],
         ),
         migrations.CreateModel(
             name='BusinessTransaction',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('transaction_type', models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', 'Bill Payment'), ('REJECTED', 'Rejected')], max_length=20)),
+                ('transaction_type', models.CharField(choices=[('DEPOSIT', 'Deposit'), ('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', TRANSFER_OUT_LABEL), ('BILL_PAYMENT', BILL_PAYMENT_LABEL), ('REJECTED', 'Rejected')], max_length=20)),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('balance_after', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('business_account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='transactions', to='banking.businessaccount')),
+                ('business_account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='transactions', to=BUSINESS_ACCOUNT_REF)),
                 ('counterparty', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='counterparty_business_transactions', to='banking.account')),
             ],
             options={
@@ -73,13 +78,13 @@ class Migration(migrations.Migration):
             name='PendingTransaction',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('transaction_type', models.CharField(choices=[('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', 'Transfer Out'), ('BILL_PAYMENT', 'Bill Payment')], max_length=20)),
+                ('transaction_type', models.CharField(choices=[('WITHDRAWAL', 'Withdrawal'), ('TRANSFER_OUT', TRANSFER_OUT_LABEL), ('BILL_PAYMENT', BILL_PAYMENT_LABEL)], max_length=20)),
                 ('amount', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('status', models.CharField(choices=[('PENDING', 'Pending'), ('APPROVED', 'Approved'), ('REJECTED', 'Rejected'), ('CANCELLED', 'Cancelled')], default='PENDING', max_length=10)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('decided_at', models.DateTimeField(blank=True, null=True)),
-                ('business_account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='pending_transactions', to='banking.businessaccount')),
+                ('business_account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='pending_transactions', to=BUSINESS_ACCOUNT_REF)),
                 ('counterparty', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='incoming_pending_transactions', to='banking.account')),
                 ('decided_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='transaction_decisions', to=settings.AUTH_USER_MODEL)),
             ],
