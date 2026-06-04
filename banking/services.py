@@ -40,6 +40,9 @@ class SelfTransferError(BankingError):
     """Raised when a user tries to transfer to their own account."""
 
 
+INSUFFICIENT_FUNDS_MIN_BALANCE_MSG = "Transaction would bring balance below minimum (7,000)."
+
+
 def _validate_amount(amount):
     if amount <= Decimal("0.00"):
         raise InvalidAmountError("Amount must be greater than zero.")
@@ -345,7 +348,7 @@ def create_pending_withdrawal(business_account: BusinessAccount, amount: Decimal
     _validate_amount(amount)
     ba = BusinessAccount.objects.get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     return PendingTransaction.objects.create(
         business_account=ba,
         transaction_type=PendingTransaction.WITHDRAWAL,
@@ -359,7 +362,7 @@ def create_pending_transfer(business_account: BusinessAccount, amount: Decimal, 
     recipient_phone = _normalize_phone(recipient_phone)
     ba = BusinessAccount.objects.get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     try:
         recipient_account = Account.objects.select_related("user").get(
             user__phone_number=recipient_phone
@@ -380,7 +383,7 @@ def create_pending_bill_payment(business_account: BusinessAccount, amount: Decim
     _validate_amount(amount)
     ba = BusinessAccount.objects.get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     return PendingTransaction.objects.create(
         business_account=ba,
         transaction_type=PendingTransaction.BILL_PAYMENT,
@@ -394,7 +397,7 @@ def withdraw_from_business(business_account: BusinessAccount, amount: Decimal) -
     _validate_amount(amount)
     ba = BusinessAccount.objects.select_for_update().get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     ba.balance -= amount
     ba.save(update_fields=["balance"])
     return BusinessTransaction.objects.create(
@@ -411,7 +414,7 @@ def transfer_from_business(business_account: BusinessAccount, amount: Decimal, r
     recipient_phone = _normalize_phone(recipient_phone)
     ba = BusinessAccount.objects.select_for_update().get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     try:
         recipient_account = Account.objects.select_related("user").get(
             user__phone_number=recipient_phone
@@ -440,7 +443,7 @@ def pay_bill_from_business(business_account: BusinessAccount, amount: Decimal, c
     _validate_amount(amount)
     ba = BusinessAccount.objects.select_for_update().get(pk=business_account.pk)
     if ba.balance - amount < Decimal("7000.00"):
-        raise InsufficientFundsError("Transaction would bring balance below minimum (7,000).")
+        raise InsufficientFundsError(INSUFFICIENT_FUNDS_MIN_BALANCE_MSG)
     ba.balance -= amount
     ba.save(update_fields=["balance"])
     return BusinessTransaction.objects.create(
